@@ -1,0 +1,111 @@
+---
+title: "PPA_Measure"
+author: "Lucas Guaragna"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+# Measure (M)
+
+A Measure, segunda etapa do DMAIC, é focada na análise do fenômeno e do processo.
+
+## Avaliação da Base de Dados
+
+### Verificação de confiabilidade dos dados
+
+```{r}
+library(readxl)
+dados <- read_xlsx(path = "Base de dados_etapa Medição.xlsx")
+print(dados)
+```
+
+Os dados não estão tratados. Dessa forma, será realizado o tratamento dos dados:
+
+```{r}
+# Função para remover caracteres não numéricos dos valores
+remove_caracteres_nao_numericos <- function(x) {
+  gsub("[^[:digit:].]", "", x)
+}
+
+# Aplicar a função de remoção de caracteres não numéricos a todas as colunas do data frame
+dados[, -1] <- lapply(dados[, -1], remove_caracteres_nao_numericos)
+
+# Substituir "null" por NA
+dados[dados == "null"] <- NA
+
+# Converter os valores para o formato numérico
+dados[, -1] <- sapply(dados[, -1], as.numeric)
+
+# Substituir "0.372" por "37.2" na coluna 'Unidade Contagem'
+dados$`Unidade Contagem`[dados$`Unidade Contagem` == 0.372] <- 37.2
+dados$`Unidade BH Pampulha`[dados$`Unidade BH Pampulha` == 781.0] <- 78.1 
+dados$`Unidade BH Belvedere`[dados$`Unidade BH Belvedere` == 0.522] <- 52.2
+dados$`Unidade Contagem`[dados$`Unidade Contagem` == 0.441] <- 44.1
+
+# Filtrar o data frame mantendo apenas as linhas completas (sem NA)
+dados_sem_na <- dados[complete.cases(dados), ]
+
+# Excluir as duas primeiras linhas do data frame 'dados' --> são de meses distantes.
+dados_sem_primeiras_linhas <- dados_sem_na[-c(1, 2), ]
+
+# Visualizar o data frame resultante
+print(dados_sem_primeiras_linhas)
+
+df <- dados_sem_primeiras_linhas
+
+```
+
+Foi percebido, que há uma *integridade dos dados a partir do mês 13*.
+
+### Análise Estatística dos dados
+
+```{r}
+summary(df)
+```
+```{r}
+# Teste de Normalidade
+centro <- shapiro.test(df$`Unidade BH Centro`)
+pampulha <- shapiro.test(df$`Unidade BH Pampulha`)
+belvedere <- shapiro.test(df$`Unidade BH Belvedere`)
+betim <- shapiro.test(df$`Unidade Betim`)
+contagem <- shapiro.test(df$`Unidade Contagem`)
+
+```
+
+Definindo a função para plotar os gráficos de normalidade:
+
+```{r}
+teste_normalidade <- function(dados, titulo = "Grafico de Normalidade", x = -1.3, y = 77.5) {
+  result <- shapiro.test(dados)
+  
+  qqnorm(dados, 
+         col = 'gray', 
+         pch = 16, 
+         main = NULL)
+  qqline(dados)
+  title(titulo)
+  text(x = x, 
+       y = y, 
+       labels = sprintf("p-value = %.4f \n w = %.4f", 
+                        result$p.value, 
+                        result$statistic))
+}
+```
+
+Plotando os gráficos de normalidade:
+
+```{r}
+teste_normalidade(df$`Unidade BH Centro`, titulo = "Grafico de Normalidade - BH Centro")
+teste_normalidade(df$`Unidade BH Pampulha`, titulo = "Grafico de Normalidade - BH Pampulha", y = 81)
+teste_normalidade(df$`Unidade BH Belvedere`, titulo = "Grafico de Normalidade - BH Bervedere", y = 61)
+```
+
+
+
+
+
+
+
+
+
+

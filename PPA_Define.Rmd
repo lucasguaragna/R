@@ -9,7 +9,7 @@ output:
 ## Carregando os dados
 ```{r}
 library(readxl)
-dados <- read_xlsx(path = "Dados_Measure.xlsx")
+dados <- read_xlsx(path = "Dados_Define.xlsx")
 listaNS <- as.list(dados["NS atendimento"])
 ```
 
@@ -67,8 +67,11 @@ qqnorm(dados$`NS atendimento`,
 qqline(dados$`NS atendimento`)
 title("Gráfico de Normalidade")
 
-text(x = -1.5, y = 77.5, 
-     labels = sprintf("p-value = %.4f \n w = %.4f", result$p.value, result$statistic))
+text(x = -1.5, 
+     y = 77.5, 
+     labels = sprintf("p-value = %.4f \n w = %.4f", 
+                      result$p.value, 
+                      result$statistic))
 
 ```
 
