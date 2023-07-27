@@ -31,26 +31,34 @@ sd(dados$`NS atendimento`)
 1. Análise de densidade:
 
 ```{r}
-hist(dados$`NS atendimento`, main = "Análise de Densidade", xlab = "NS Atendimento (%)", ylab = "Densidade", prob = T, las = 1)
+hist(dados$`NS atendimento`, 
+     main = "Análise de Densidade", 
+     xlab = "NS Atendimento (%)", 
+     ylab = "Densidade", 
+     prob = T, 
+     las = 1)
 lines(density(dados$`NS atendimento`), lwd = 3)
 box(bty = "l")
 ```
 2. Análise de frequência (Histograma)
 
 ```{r}
-hist(dados$`NS atendimento`, main = "Histograma do NS Atendimento", xlab = "NS Atendimento (%)", ylab = "Frequência", prob = F, las = 1)
-
+hist(dados$`NS atendimento`, 
+     main = "Histograma do NS Atendimento", 
+     xlab = "NS Atendimento (%)", 
+     ylab = "Frequência", 
+     prob = F, 
+     las = 1)
 
 ```
   
   A maior frequência de NS Atendimento se encontra entre 65 <= NS Atendimento <= 75 e a menor em 80 <= NS Atendimento <= 85.
 
+3. Gráfico de Normalidade
 ```{r}
+# Teste de Normalidade
 result <- shapiro.test(dados$`NS atendimento`)
-print(result)
 
-```
-```{r}
 #plotando o gráfico de normalidade
 qqnorm(dados$`NS atendimento`, 
        col = 'gray', 
@@ -63,7 +71,6 @@ text(x = -1.5, y = 77.5,
      labels = sprintf("p-value = %.4f \n w = %.4f", result$p.value, result$statistic))
 
 ```
-
 
 Como **p-value > 0.05**, os dados **são normais**.
 
