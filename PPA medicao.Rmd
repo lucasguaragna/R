@@ -1,0 +1,150 @@
+---
+title: "PPA - Lucas Guaragna"
+output:
+  html_document:
+    df_print: paged
+---
+# Define (D)
+
+## Carregando os dados
+```{r}
+library(readxl)
+dados <- read_xlsx(path = "Dados_Measure.xlsx")
+listaNS <- as.list(dados["NS atendimento"])
+```
+
+## Analisando os dados
+
+**Média, Mediana, Mínimo, máximo**:
+```{r}
+summary(dados["NS atendimento"])
+```
+**Desvio padrão** dos dados: 
+```{r}
+sd(dados$`NS atendimento`)
+
+```
+- Valor mais recente do indicador: 68.0
+
+### Teste de Normalidade
+
+1. Análise de densidade:
+
+```{r}
+hist(dados$`NS atendimento`, main = "Análise de Densidade", xlab = "NS Atendimento (%)", ylab = "Densidade", prob = T, las = 1)
+lines(density(dados$`NS atendimento`), lwd = 3)
+box(bty = "l")
+```
+2. Análise de frequência (Histograma)
+
+```{r}
+hist(dados$`NS atendimento`, main = "Histograma do NS Atendimento", xlab = "NS Atendimento (%)", ylab = "Frequência", prob = F, las = 1)
+
+
+```
+  
+  A maior frequência de NS Atendimento se encontra entre 65 <= NS Atendimento <= 75 e a menor em 80 <= NS Atendimento <= 85.
+
+```{r}
+result <- shapiro.test(dados$`NS atendimento`)
+print(result)
+
+```
+```{r}
+#plotando o gráfico de normalidade
+qqnorm(dados$`NS atendimento`, 
+       col = 'gray', 
+       pch = 16, 
+       main = NULL)
+qqline(dados$`NS atendimento`)
+title("Gráfico de Normalidade")
+
+text(x = -1.5, y = 77.5, 
+     labels = sprintf("p-value = %.4f \n w = %.4f", result$p.value, result$statistic))
+
+```
+
+
+Como **p-value > 0.05**, os dados **são normais**.
+
+### Gráfico de Séries Temporais
+
+```{r}
+lm(dados$`NS atendimento` ~ dados$Mês)
+# ypretido <- predict(modelo_linear)
+```
+
+```{r}
+# Plotando o gráfico na cor preta, sem a caixa ao seu redor, Definindo o nome dos eixos
+plot(dados, type = "b", main = "NS Atendimento ao longo dos meses", col = "black", bty="n", xlab="Mês (unidade)", ylab="NS Atendimento (%)", xaxt = "n", yaxt = "n")
+
+# Adicionando a regressão linear ao gráfico
+lines(x = dados$Mês, y = predict(lm(dados$`NS atendimento` ~ dados$Mês)), col = "gray", lty = 1, lwd = 2)
+
+# Definindo o redor do gráfico (em formato de L)
+box(bty = "l")
+
+# Definindo as posições dos elementos dos eixos
+axis(side = 1, las = 1)
+axis(side = 2, las = 1)
+
+# Definindo a legenda da regressão
+legend(x = "bottomleft", 
+       legend = "Regressão Linear", 
+       lty = 1, 
+       lwd = 2, 
+       bty = "n", 
+       col = "gray")
+
+# Inserindo a linha da meta, a seta e o texto
+abline(h = 75, 
+       lty = 2, 
+       col= "darkgray")
+arrows(x0 = 20.5, y0 = 76.5, 
+       x1 = 20.5, y1 = 75, 
+       length = 0.1)
+text(x = 20.5, y = 77.5, 
+     labels = "Meta Grupo Vitta")
+text(x = 24, y = 69, labels = "68")
+```
+Existe um padrão de comportamento: linear
+
+### Boxplot
+```{r}
+
+bp <- boxplot(dados["NS atendimento"], 
+        main = "Nível de Serviço de Atendimento nos últimos 24 meses", 
+        bty = "n", 
+        xlab = "NS Atendimento", 
+        horizontal = T, 
+        border = "white", 
+        whiskcol = "black", 
+        staplecol = "black", 
+        outcol = "black", 
+        col = "black", 
+        outpch = 19, 
+        boxwex = 0.4, 
+        range = 0)
+
+```
+Limite inferior, Primeiro Quartil, Mediana/Segundo Quartil, Terceiro Quartil e Limite superior:
+
+```{r}
+bp$stats
+```
+  Ao analisar a faixa entre o limite inferior e o primeiro quartil, observamos os piores valores já atingidos (62.72 - 66.65), representando 25% dos dados. Com o mesmo raciocínio, podemos analisar os valores entre o terceiro quartil e o limite superior (76.65 - 80.80), e verificar os melhores valores do indicador NS atendimento, representando, também, 25% dos dados.
+
+### Ferramenta Qualitativa: SIPOC
+
+  Para uma melhor análise do problema, foi  feito o diagrama SIPOC.
+
+## Definindo a meta do projeto
+
+  Considerando o valor do último mês do indicador NS Atendimento (68%), e o seu valor ideal (90%), existe, portanto, uma lacuna de 22%. Como uma meta deve ser estipulada em, no mínimo, 50% da lacuna (11%, no caso), temos que o valor de meta do indicador deve ser de, no mínimo **79%** em **6 meses de projeto** (*de 05/06/2023 a 05/12/2023*).
+
+  Segundo a área de BI do Grupo Vitta, cada percentual acima da meta atual da empresa (75%) representa um ganho potencial de receita de 235,00 reais pra cada 1k clientes/ano e as unidades de MG atendem, em média, 192k clientes/ano. Portanto, como ganho financeiro potencial, esse projeto geraria 4 x 15 x 235 = 14.100,00 Reais/ano.
+  
+  **Obs:** O ganho do projeto não será apenas financeiro: o aumento do NS Atendimento gera um melhor fluxo do cliente, aumentando a satisfação do cliente que, por sua vez, pode aumentar a demanda do atendimento e a fidalidade dos clientes do Grupo Vitta.
+  
+
+
