@@ -16,7 +16,17 @@ A Measure, segunda etapa do DMAIC, é focada na análise do fenômeno e do proce
 ```{r}
 library(readxl)
 dados <- read_xlsx(path = "Base de dados_etapa Medição.xlsx")
-print(dados)
+
+library(kableExtra)
+
+# Criar a tabela usando kable()
+tabela_formatada <- kable(dados)
+
+# Aplicar estilo usando kable_styling()
+tabela_formatada_estilizada <- kable_styling(tabela_formatada, full_width = FALSE)
+
+# Visualizar a tabela estilizada
+tabela_formatada_estilizada
 ```
 
 Os dados não estão tratados. Dessa forma, será realizado o tratamento dos dados:
@@ -49,19 +59,66 @@ dados_sem_na <- dados[complete.cases(dados), ]
 dados_sem_primeiras_linhas <- dados_sem_na[-c(1, 2), ]
 
 # Visualizar o data frame resultante
-print(dados_sem_primeiras_linhas)
 
 df <- dados_sem_primeiras_linhas
 
+library(kableExtra)
+
+# Criar a tabela usando kable()
+tabela_formatada <- kable(df)
+
+# Aplicar estilo usando kable_styling()
+tabela_formatada_estilizada <- kable_styling(tabela_formatada, full_width = FALSE)
+
+# Visualizar a tabela estilizada
+tabela_formatada_estilizada
+
 ```
 
-Foi percebido, que há uma *integridade dos dados a partir do mês 13*.
+Foi percebido, que há uma *integridade dos dados a partir do mês 13*. O resto dos dados não apresenta uma integridade suficiente para realizarmos análises estatísticas verídicas.
 
 ### Análise Estatística dos dados
 
 ```{r}
-summary(df)
+# Função personalizada para calcular o resumo estatístico e o desvio padrão
+summary_with_sd <- function(x) {
+  # Calcula o resumo estatístico (min, 1st quartile, median, mean, 3rd quartile, max) das colunas
+  resumo <- summary(x)
+  
+  # Calcula o desvio padrão das colunas, ignorando valores NA (missing values)
+  desvio_padrao <- sd(x, na.rm = TRUE)
+  
+  # Retorna um vetor com o resumo estatístico e o desvio padrão concatenados
+  return(c(resumo, `Desvio Padrão` = desvio_padrao))
+}
+
+# Aplicar a função summary_with_sd() a cada coluna do data frame
+df_summary <- sapply(df, summary_with_sd)
+
+# Transformar a matriz resultante em um data frame
+df_summary <- as.data.frame(df_summary)
+
+# Excluindo colunas indesejadas:
+df$Mês <- NULL
+df$Desvio_Padrão <- NULL
+
+# Visualizar o data frame com o resumo estatístico e o desvio padrão
+#print(df_summary)
+
+library(kableExtra)
+
+# Criar a tabela usando kable()
+tabela_formatada <- kable(df_summary)
+
+# Aplicar estilo usando kable_styling()
+tabela_formatada_estilizada <- kable_styling(tabela_formatada, full_width = FALSE)
+
+# Visualizar a tabela estilizada
+tabela_formatada_estilizada
+
 ```
+
+
 ```{r}
 # Teste de Normalidade
 centro <- shapiro.test(df$`Unidade BH Centro`)
@@ -98,6 +155,8 @@ Plotando os gráficos de normalidade:
 teste_normalidade(df$`Unidade BH Centro`, titulo = "Grafico de Normalidade - BH Centro")
 teste_normalidade(df$`Unidade BH Pampulha`, titulo = "Grafico de Normalidade - BH Pampulha", y = 81)
 teste_normalidade(df$`Unidade BH Belvedere`, titulo = "Grafico de Normalidade - BH Bervedere", y = 61)
+teste_normalidade(df$`Unidade Betim`, titulo = "Grafico de Normalidade - Betim", y = 83)
+teste_normalidade(df$`Unidade Contagem`, titulo = "Grafico de Normalidade - Contagem", y = 50)
 ```
 
 
