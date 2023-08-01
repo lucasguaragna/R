@@ -118,6 +118,9 @@ tabela_formatada_estilizada
 
 ```
 
+#### Interpretação dos dados:
+  A unidade de contagem é a unidade que apresenta maior desvio padrão, ou seja, é a unidade que possui maior variação no indicador.
+
 
 ```{r}
 # Teste de Normalidade
@@ -158,7 +161,31 @@ teste_normalidade(df$`Unidade BH Belvedere`, titulo = "Grafico de Normalidade - 
 teste_normalidade(df$`Unidade Betim`, titulo = "Grafico de Normalidade - Betim", y = 83)
 teste_normalidade(df$`Unidade Contagem`, titulo = "Grafico de Normalidade - Contagem", y = 50)
 ```
+### Análise do Processo e do Fenômeno
 
+#### Gráficos sequenciais
+
+```{r}
+# Plotando cada um dos gráficos
+for (coluna in names(df)){
+  if(coluna != "Mês"){
+    plot(df$Mês, df[[coluna]],
+         bty = "l", # Caixa do gráfico em L
+         type = "b", # Pontos Ligados
+         xlab = "Mês", ylab = "NS Atendimento", # Nome Eixos
+         main = sprintf("Gráfico Sequencial de %s", coluna) # Título de cada um dos gráficos
+     ) 
+  }
+}
+```
+
+Comentar sobre a variabilidade dos dados e se existe algum padrão de comportamento que chama atenção nos gráficos sequenciais.
+
+#### Histogramas
+
+#### ANOVA para comparar as médicas do NS atendimento
+
+#### Teste de Hipóteses comparando as médicas das unidades pampulha e betim.
 
 
 
